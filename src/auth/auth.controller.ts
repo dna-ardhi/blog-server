@@ -2,7 +2,7 @@ import { Body, Controller, Post } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { RegisterDto } from './dto/register-auth.dto';
 import { LoginDto } from './dto/login-auth.dto';
-import { LetterCasePipe } from './letter-case.pipe';
+import { LetterCasePipe } from '../users/letter-case.pipe';
 
 @Controller('auth')
 export class AuthController {

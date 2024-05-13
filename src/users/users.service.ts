@@ -27,22 +27,41 @@ export class UsersService {
   }
 
   findAll(): Promise<User[]> {
-    return this.userRepository.find();
+    return this.userRepository.find({
+      select: {
+        uuid: true,
+        first_name: true,
+        last_name: true,
+        email_address: true,
+        username: true,
+      },
+    });
   }
 
-  findOne(id: number): Promise<User | null> {
-    return this.userRepository.findOneBy({ id });
+  findOne(userId: string): Promise<User | null> {
+    return this.userRepository.findOne({
+      where: [{ username: userId }, { uuid: userId }],
+    });
   }
 
   findOneBy(where: FindOptionsWhere<User>): Promise<User | null> {
     return this.userRepository.findOneBy(where);
   }
 
-  update(id: number, updateUserDto: UpdateUserDto): Promise<UpdateResult> {
-    return this.userRepository.update(id, updateUserDto);
+  update(userId: string, updateUserDto: UpdateUserDto): Promise<UpdateResult> {
+    return this.userRepository
+      .createQueryBuilder()
+      .update()
+      .set(updateUserDto)
+      .where('username = :userId OR uuid = :userId', { userId })
+      .execute();
   }
 
-  remove(id: number): Promise<DeleteResult> {
-    return this.userRepository.delete(id);
+  remove(userId: string): Promise<DeleteResult> {
+    return this.userRepository
+      .createQueryBuilder()
+      .delete()
+      .where('username = :userId OR uuid = :userId', { userId })
+      .execute();
   }
 }

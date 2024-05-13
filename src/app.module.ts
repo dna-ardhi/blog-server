@@ -22,7 +22,7 @@ import { HelpersModule } from './helpers/helpers.module';
         password: configService.get('DB_PASSWORD'),
         database: configService.get('DB_NAME'),
         entities: ['dist/**/*.entity{.ts,.js}'],
-        synchronize: false,
+        synchronize: process.env.NODE_ENV === 'development',
         autoLoadEntities: true,
         migrations: [__dirname + '/migrations/**/*{.ts,.js}'],
         seeds: [__dirname + '/seeds/**/*{.ts,.js}'],
