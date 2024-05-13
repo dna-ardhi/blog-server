@@ -11,13 +11,19 @@ export class User {
   @PrimaryGeneratedColumn()
   id: number;
 
+  @Column({ nullable: true })
+  avatar: string;
+
   @Column()
   first_name: string;
 
   @Column()
   last_name: string;
 
-  @Column()
+  @Column({ unique: true, nullable: true })
+  username: string;
+
+  @Column({ unique: true })
   email_address: string;
 
   @Column({ default: true })
