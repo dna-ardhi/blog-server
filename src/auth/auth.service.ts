@@ -22,7 +22,6 @@ type AuthResponse = {
 @Injectable()
 export class AuthService {
   salt: number = 10;
-  tokenExpiresIn: string | number | undefined = '7d';
   privateKey: string;
 
   constructor(
@@ -99,7 +98,6 @@ export class AuthService {
   async generateToken(payload: AccessTokenPayload): Promise<string> {
     return this.jwtService.signAsync(payload, {
       privateKey: this.privateKey,
-      expiresIn: this.tokenExpiresIn,
     });
   }
 }
