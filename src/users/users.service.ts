@@ -9,13 +9,13 @@ import {
 } from 'typeorm';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { User } from './entities/user.entity';
+import { Users } from './entities/users.entity';
 
 @Injectable()
 export class UsersService {
   constructor(
-    @InjectRepository(User)
-    private userRepository: Repository<User>,
+    @InjectRepository(Users)
+    private userRepository: Repository<Users>,
   ) {}
 
   insert(createUserDto: CreateUserDto): Promise<InsertResult> {
@@ -26,10 +26,9 @@ export class UsersService {
     return this.userRepository.existsBy({ email_address });
   }
 
-  findAll(): Promise<User[]> {
+  findAll(): Promise<Users[]> {
     return this.userRepository.find({
       select: {
-        uuid: true,
         first_name: true,
         last_name: true,
         email_address: true,
@@ -38,13 +37,13 @@ export class UsersService {
     });
   }
 
-  findOne(userId: string): Promise<User | null> {
+  findOne(userId: string): Promise<Users | null> {
     return this.userRepository.findOne({
-      where: [{ username: userId }, { uuid: userId }],
+      where: [{ username: userId }, { id: userId }],
     });
   }
 
-  findOneBy(where: FindOptionsWhere<User>): Promise<User | null> {
+  findOneBy(where: FindOptionsWhere<Users>): Promise<Users | null> {
     return this.userRepository.findOneBy(where);
   }
 
@@ -53,7 +52,7 @@ export class UsersService {
       .createQueryBuilder()
       .update()
       .set(updateUserDto)
-      .where('username = :userId OR uuid = :userId', { userId })
+      .where('username = :userId OR id = :userId', { userId })
       .execute();
   }
 
@@ -61,7 +60,7 @@ export class UsersService {
     return this.userRepository
       .createQueryBuilder()
       .delete()
-      .where('username = :userId OR uuid = :userId', { userId })
+      .where('username = :userId OR id = :userId', { userId })
       .execute();
   }
 }

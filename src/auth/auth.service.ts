@@ -8,9 +8,12 @@ import * as bcrypt from 'bcrypt';
 import { UsersService } from 'src/users/users.service';
 import { RegisterDto } from './dto/register-auth.dto';
 import { LoginDto } from './dto/login-auth.dto';
+import { Repository } from 'typeorm';
+import { Permissions } from './entities/permissions.entity';
+import { InjectRepository } from '@nestjs/typeorm';
 
 type AccessTokenPayload = {
-  userId: number;
+  userId: string;
   full_name: string;
   email_address: string;
 };
@@ -25,6 +28,8 @@ export class AuthService {
   privateKey: string;
 
   constructor(
+    @InjectRepository(Permissions)
+    private permissionRepository: Repository<Permissions>,
     private usersService: UsersService,
     private jwtService: JwtService,
   ) {
@@ -85,6 +90,10 @@ export class AuthService {
     return {
       access_token: accessToken,
     };
+  }
+
+  async createPermissionKey(key: string) {
+    return this.permissionRepository.insert({ key });
   }
 
   async hash(password: string): Promise<string> {

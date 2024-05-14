@@ -1,13 +1,13 @@
 import { Module } from '@nestjs/common';
-import { UsersService } from './users.service';
-import { UsersController } from './users.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { User } from './entities/user.entity';
-import { LetterCasePipe } from './letter-case.pipe';
 import { HelpersModule } from 'src/helpers/helpers.module';
+import { Users } from './entities/users.entity';
+import { LetterCasePipe } from './letter-case.pipe';
+import { UsersController } from './users.controller';
+import { UsersService } from './users.service';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([User]), HelpersModule],
+  imports: [TypeOrmModule.forFeature([Users]), HelpersModule],
   controllers: [UsersController],
   providers: [UsersService, LetterCasePipe],
   exports: [UsersService, LetterCasePipe],

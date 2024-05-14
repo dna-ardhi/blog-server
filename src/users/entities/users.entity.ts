@@ -1,20 +1,18 @@
+import { Roles } from '@/auth/entities/roles.entity';
 import {
   Column,
   CreateDateColumn,
   Entity,
-  Generated,
+  JoinColumn,
+  ManyToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
 
 @Entity()
-export class User {
-  @PrimaryGeneratedColumn()
-  id: number;
-
-  @Column({ unique: true })
-  @Generated('uuid')
-  uuid: string;
+export class Users {
+  @PrimaryGeneratedColumn('uuid')
+  id: string;
 
   @Column({ nullable: true })
   avatar: string;
@@ -33,6 +31,10 @@ export class User {
 
   @Column({ default: true })
   is_active: boolean;
+
+  @ManyToOne(() => Roles)
+  @JoinColumn({ name: 'role_id' })
+  role: number;
 
   @Column()
   password: string;
