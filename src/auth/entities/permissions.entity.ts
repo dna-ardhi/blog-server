@@ -14,10 +14,10 @@ export class Permissions {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column()
+  @Column({ unique: true })
   key: string;
 
-  @Column()
+  @Column({ nullable: true })
   description: string;
 
   @ManyToMany(() => Roles, (role) => role.permissions)
