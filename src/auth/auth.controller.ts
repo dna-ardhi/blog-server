@@ -25,6 +25,7 @@ export class AuthController {
     return this.authService.login(loginDto);
   }
 
+  @UsePipes(new CapitalizePipe<CreateRoleDTO>(['name']))
   @Post('roles')
   async create(@Body() createRoleDto: CreateRoleDTO) {
     return this.authService.insertRole(createRoleDto);

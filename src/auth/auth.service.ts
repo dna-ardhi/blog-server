@@ -4,13 +4,21 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
+import { InjectRepository } from '@nestjs/typeorm';
 import * as bcrypt from 'bcrypt';
 import { UsersService } from 'src/users/users.service';
-import { RegisterDto } from './dto/register-auth.dto';
+import {
+  DeleteResult,
+  FindManyOptions,
+  InsertResult,
+  Repository,
+  UpdateResult,
+} from 'typeorm';
+import { CreateRoleDTO } from './dto/create-role.dto';
 import { LoginDto } from './dto/login-auth.dto';
-import { Repository } from 'typeorm';
-import { Permissions } from './entities/permissions.entity';
-import { InjectRepository } from '@nestjs/typeorm';
+import { RegisterDto } from './dto/register-auth.dto';
+import { UpdateRoleDto } from './dto/update-role.dto';
+import { Roles } from './entities/roles.entity';
 
 type AccessTokenPayload = {
   userId: string;
@@ -28,8 +36,8 @@ export class AuthService {
   privateKey: string;
 
   constructor(
-    @InjectRepository(Permissions)
-    private permissionRepository: Repository<Permissions>,
+    @InjectRepository(Roles)
+    private rolesRepository: Repository<Roles>,
     private usersService: UsersService,
     private jwtService: JwtService,
   ) {
@@ -92,19 +100,56 @@ export class AuthService {
     };
   }
 
-  async createPermissionKey(key: string) {
-    return this.permissionRepository.insert({ key });
+  async insertRole(createRoleDto: CreateRoleDTO): Promise<InsertResult> {
+    const exist = await this.rolesRepository.existsBy({
+      name: createRoleDto.name.toLowerCase(),
+    });
+
+    if (exist) {
+      throw new ConflictException(
+        'Nama role telah terdaftar, silahkan masukkan nama lain!',
+      );
+    }
+
+    return this.rolesRepository
+      .createQueryBuilder()
+      .insert()
+      .values(createRoleDto)
+      .returning('*')
+      .execute();
   }
 
-  async hash(password: string): Promise<string> {
+  async updateRole(
+    id: number,
+    UpdateRoleDto: UpdateRoleDto,
+  ): Promise<UpdateResult> {
+    return this.rolesRepository.update(id, UpdateRoleDto);
+  }
+
+  async findOneRole(id: number): Promise<Roles | null> {
+    return this.rolesRepository.findOneBy({ id });
+  }
+
+  async findAllRoles(options?: FindManyOptions<Roles>): Promise<Roles[]> {
+    return this.rolesRepository.find(options);
+  }
+
+  async deleteRole(id: number | number[]): Promise<DeleteResult> {
+    return this.rolesRepository.delete(id);
+  }
+
+  private async hash(password: string): Promise<string> {
     return bcrypt.hash(password, this.salt);
   }
 
-  async comparePassword(input: string, encrypted: string): Promise<boolean> {
+  private async comparePassword(
+    input: string,
+    encrypted: string,
+  ): Promise<boolean> {
     return bcrypt.compare(input, encrypted);
   }
 
-  async generateToken(payload: AccessTokenPayload): Promise<string> {
+  private async generateToken(payload: AccessTokenPayload): Promise<string> {
     return this.jwtService.signAsync(payload, {
       privateKey: this.privateKey,
     });
