@@ -6,11 +6,13 @@ import {
   Param,
   Patch,
   Post,
+  UsePipes,
 } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UsersService } from './users.service';
-import { LetterCasePipe } from './letter-case.pipe';
+import { CapitalizePipe } from '@/helpers/pipes/capitalize/capitalize.pipe';
+import { LowerCasePipe } from '@/helpers/pipes/lower-case/lower-case.pipe';
 
 @Controller('users')
 export class UsersController {
@@ -31,10 +33,14 @@ export class UsersController {
     return this.usersService.findOne(id);
   }
 
+  @UsePipes(
+    new CapitalizePipe<UpdateUserDto>(['first_name', 'last_name']),
+    new LowerCasePipe<UpdateUserDto>(['email_address', 'username']),
+  )
   @Patch('edit/:user_id')
   update(
     @Param('user_id') userId: string,
-    @Body(LetterCasePipe) updateUserDto: UpdateUserDto,
+    @Body() updateUserDto: UpdateUserDto,
   ) {
     return this.usersService.update(userId, updateUserDto);
   }
