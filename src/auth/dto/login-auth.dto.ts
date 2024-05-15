@@ -1,10 +1,7 @@
-import { IsEmail, IsNotEmpty, MinLength } from 'class-validator';
+import { OmitType } from '@nestjs/mapped-types';
+import { RegisterDto } from './register-auth.dto';
 
-export class LoginDto {
-  @IsEmail()
-  email_address: string;
-
-  @IsNotEmpty()
-  @MinLength(8)
-  password: string;
-}
+export class LoginDto extends OmitType(RegisterDto, [
+  'first_name',
+  'last_name',
+]) {}
