@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import {
   DeleteResult,
+  FindManyOptions,
   FindOptionsWhere,
   InsertResult,
   Repository,
@@ -26,14 +27,16 @@ export class UsersService {
     return this.userRepository.existsBy({ email_address });
   }
 
-  findAll(): Promise<Users[]> {
+  findAll(options?: FindManyOptions<Users>): Promise<Users[]> {
     return this.userRepository.find({
       select: {
+        id: true,
         first_name: true,
         last_name: true,
         email_address: true,
         username: true,
       },
+      ...options,
     });
   }
 
