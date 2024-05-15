@@ -1,11 +1,5 @@
-import {
-  Column,
-  CreateDateColumn,
-  Entity,
-  ManyToMany,
-  PrimaryGeneratedColumn,
-  UpdateDateColumn,
-} from 'typeorm';
+import { Timestamp } from '@/helpers/entities.helpers';
+import { Column, Entity, ManyToMany, PrimaryGeneratedColumn } from 'typeorm';
 import { Roles } from './roles.entity';
 
 @Entity()
@@ -22,9 +16,6 @@ export class Permissions {
   @ManyToMany(() => Roles, (role) => role.permissions)
   roles: Roles[];
 
-  @CreateDateColumn()
-  created_at: Date;
-
-  @UpdateDateColumn()
-  updated_at: Date;
+  @Column(() => Timestamp, { prefix: false })
+  timestamp: Timestamp;
 }

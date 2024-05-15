@@ -1,11 +1,10 @@
+import { Timestamp } from '@/helpers/entities.helpers';
 import {
   Column,
-  CreateDateColumn,
   Entity,
   JoinTable,
   ManyToMany,
   PrimaryGeneratedColumn,
-  UpdateDateColumn,
 } from 'typeorm';
 import { Permissions } from './permissions.entity';
 
@@ -14,7 +13,7 @@ export class Roles {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column()
+  @Column({ unique: true })
   name: string;
 
   @Column({ nullable: true })
@@ -22,7 +21,7 @@ export class Roles {
 
   @ManyToMany(() => Permissions, (permission) => permission.roles)
   @JoinTable({
-    name: 'access_distribution',
+    name: 'roles_permissions_association',
     joinColumn: {
       name: 'role_id',
       referencedColumnName: 'id',
@@ -34,9 +33,6 @@ export class Roles {
   })
   permissions: Permissions[];
 
-  @CreateDateColumn()
-  created_at: Date;
-
-  @UpdateDateColumn()
-  update_at: Date;
+  @Column(() => Timestamp, { prefix: false })
+  timestamp: Timestamp;
 }
