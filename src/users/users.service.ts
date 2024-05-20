@@ -28,16 +28,7 @@ export class UsersService {
   }
 
   findAll(options?: FindManyOptions<Users>): Promise<Users[]> {
-    return this.userRepository.find({
-      select: {
-        id: true,
-        first_name: true,
-        last_name: true,
-        email_address: true,
-        username: true,
-      },
-      ...options,
-    });
+    return this.userRepository.find(options);
   }
 
   findOne(userId: string): Promise<Users | null> {

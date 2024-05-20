@@ -1,5 +1,5 @@
 import { Utilities } from '@/helpers/utilities.helpers';
-import { Injectable, PipeTransform } from '@nestjs/common';
+import { ArgumentMetadata, Injectable, PipeTransform } from '@nestjs/common';
 
 @Injectable()
 export class CapitalizePipe<T> implements PipeTransform {
@@ -10,11 +10,19 @@ export class CapitalizePipe<T> implements PipeTransform {
     this.keys = keys;
   }
 
-  transform(value: T): T {
-    const result = { ...value };
+  transform(value: T, metadata: ArgumentMetadata): T {
+    let result = value;
+
+    if (metadata.type === 'body') {
+      result = { ...value };
+    }
 
     this.keys.forEach((key) => {
-      result[key] = <T[keyof T]>this.utilities.capitalize(value[key] as string);
+      if (result[key]) {
+        result[key] = <T[keyof T]>(
+          this.utilities.capitalize(value[key] as string)
+        );
+      }
     });
 
     return result;

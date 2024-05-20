@@ -1,5 +1,14 @@
-import { Timestamp } from '@/helpers/entities.helpers';
-import { Column, Entity, ManyToMany, PrimaryGeneratedColumn } from 'typeorm';
+import { Menus } from '@/menus/entities/menus.entity';
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  JoinColumn,
+  ManyToMany,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+  UpdateDateColumn,
+} from 'typeorm';
 import { Roles } from './roles.entity';
 
 @Entity()
@@ -13,9 +22,19 @@ export class Permissions {
   @Column({ nullable: true })
   description: string;
 
+  @ManyToOne(() => Menus)
+  @JoinColumn({ name: 'menu_id' })
+  menu_id: number;
+
+  @Column({ default: false })
+  submenu: boolean;
+
   @ManyToMany(() => Roles, (role) => role.permissions)
   roles: Roles[];
 
-  @Column(() => Timestamp, { prefix: false })
-  timestamp: Timestamp;
+  @CreateDateColumn()
+  created_at: Date;
+
+  @UpdateDateColumn()
+  updated_at: Date;
 }

@@ -1,4 +1,4 @@
-import { Injectable, PipeTransform } from '@nestjs/common';
+import { ArgumentMetadata, Injectable, PipeTransform } from '@nestjs/common';
 
 @Injectable()
 export class LowerCasePipe<T> implements PipeTransform {
@@ -8,11 +8,17 @@ export class LowerCasePipe<T> implements PipeTransform {
     this.keys = keys;
   }
 
-  transform(value: T): T {
-    const result = { ...value };
+  transform(value: T, metadata: ArgumentMetadata): T {
+    let result: T = value;
+
+    if (metadata.type === 'body') {
+      result = { ...value };
+    }
 
     this.keys.forEach((key) => {
-      result[key] = <T[keyof T]>(<string>value[key]).toLowerCase();
+      if (value[key]) {
+        result[key] = <T[keyof T]>(<string>value[key]).toLowerCase();
+      }
     });
 
     return result;

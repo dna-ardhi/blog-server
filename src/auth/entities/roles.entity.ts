@@ -1,10 +1,11 @@
-import { Timestamp } from '@/helpers/entities.helpers';
 import {
   Column,
+  CreateDateColumn,
   Entity,
   JoinTable,
   ManyToMany,
   PrimaryGeneratedColumn,
+  UpdateDateColumn,
 } from 'typeorm';
 import { Permissions } from './permissions.entity';
 
@@ -33,6 +34,9 @@ export class Roles {
   })
   permissions: Permissions[];
 
-  @Column(() => Timestamp, { prefix: false })
-  timestamp: Timestamp;
+  @CreateDateColumn()
+  created_at: Date;
+
+  @UpdateDateColumn()
+  updated_at: Date;
 }

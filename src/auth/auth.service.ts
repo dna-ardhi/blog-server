@@ -123,15 +123,15 @@ export class AuthService {
     id: number,
     UpdateRoleDto: UpdateRoleDto,
   ): Promise<UpdateResult> {
-    return this.rolesRepository.update(id, UpdateRoleDto);
+    return this.rolesRepository.update({ id: id }, UpdateRoleDto);
   }
 
   async findOneRole(id: number): Promise<Roles | null> {
     return this.rolesRepository.findOneBy({ id });
   }
 
-  async findAllRoles(options?: FindManyOptions<Roles>): Promise<Roles[]> {
-    return this.rolesRepository.find(options);
+  async findAllRoles(): Promise<Roles[]> {
+    return this.rolesRepository.find();
   }
 
   async deleteRole(id: number | number[]): Promise<DeleteResult> {

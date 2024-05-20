@@ -1,5 +1,4 @@
 import { Roles } from '@/auth/entities/roles.entity';
-import { Timestamp } from '@/helpers/entities.helpers';
 import {
   Column,
   CreateDateColumn,
@@ -37,9 +36,12 @@ export class Users {
   @JoinColumn({ name: 'role_id' })
   role: number;
 
-  @Column()
+  @Column({ select: false })
   password: string;
 
-  @Column(() => Timestamp, { prefix: false })
-  timestamp: Timestamp;
+  @CreateDateColumn()
+  created_at: Date;
+
+  @UpdateDateColumn()
+  updated_at: Date;
 }
