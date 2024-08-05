@@ -41,6 +41,14 @@ export class UsersService {
     return this.userRepository.findOneBy(where);
   }
 
+  getPassword(identifier: string): Promise<Users | null> {
+    return this.userRepository
+      .createQueryBuilder('user')
+      .select(['user.password'])
+      .where('email_address = :id OR username = :id', { id: identifier })
+      .getOne();
+  }
+
   update(userId: string, updateUserDto: UpdateUserDto): Promise<UpdateResult> {
     return this.userRepository
       .createQueryBuilder()

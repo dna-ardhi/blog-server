@@ -1,23 +1,26 @@
+import { Menus } from '@/menus/entities/menus.entity';
 import {
   ConflictException,
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { InjectRepository } from '@nestjs/typeorm';
+import { InjectEntityManager, InjectRepository } from '@nestjs/typeorm';
 import * as bcrypt from 'bcrypt';
 import { UsersService } from 'src/users/users.service';
 import {
   DeleteResult,
-  FindManyOptions,
+  EntityManager,
   InsertResult,
   Repository,
   UpdateResult,
 } from 'typeorm';
+import { CreatePermissionDto } from './dto/create-permission.dto';
 import { CreateRoleDTO } from './dto/create-role.dto';
 import { LoginDto } from './dto/login-auth.dto';
 import { RegisterDto } from './dto/register-auth.dto';
 import { UpdateRoleDto } from './dto/update-role.dto';
+import { Permissions } from './entities/permissions.entity';
 import { Roles } from './entities/roles.entity';
 
 type AccessTokenPayload = {
@@ -38,10 +41,31 @@ export class AuthService {
   constructor(
     @InjectRepository(Roles)
     private rolesRepository: Repository<Roles>,
+    @InjectRepository(Permissions)
+    private permissionsRepository: Repository<Permissions>,
+    @InjectEntityManager()
+    private manager: EntityManager,
     private usersService: UsersService,
     private jwtService: JwtService,
   ) {
     this.privateKey = process.env.JWT_PRIVATE_KEY!;
+  }
+
+  private async hash(password: string): Promise<string> {
+    return bcrypt.hash(password, this.salt);
+  }
+
+  private async comparePassword(
+    input: string,
+    encrypted: string,
+  ): Promise<boolean> {
+    return bcrypt.compare(input, encrypted);
+  }
+
+  private async generateToken(payload: AccessTokenPayload): Promise<string> {
+    return this.jwtService.signAsync(payload, {
+      privateKey: this.privateKey,
+    });
   }
 
   async register(registerDto: RegisterDto): Promise<AuthResponse> {
@@ -73,9 +97,7 @@ export class AuthService {
 
   async login(loginDto: LoginDto): Promise<AuthResponse> {
     let password = false;
-    const user = await this.usersService.findOneBy({
-      email_address: loginDto.email_address,
-    });
+    const user = await this.usersService.getPassword(loginDto.email_address);
 
     if (user) {
       password = await this.comparePassword(loginDto.password, user.password);
@@ -138,20 +160,27 @@ export class AuthService {
     return this.rolesRepository.delete(id);
   }
 
-  private async hash(password: string): Promise<string> {
-    return bcrypt.hash(password, this.salt);
+  async insertPermission(
+    createPermissionDto: CreatePermissionDto,
+  ): Promise<InsertResult> {
+    return this.permissionsRepository.insert(createPermissionDto);
   }
 
-  private async comparePassword(
-    input: string,
-    encrypted: string,
-  ): Promise<boolean> {
-    return bcrypt.compare(input, encrypted);
+  async findAllAccess() {
+    return this.manager
+      .getTreeRepository(Menus)
+      .findTrees({ relations: ['permissions'] });
   }
 
-  private async generateToken(payload: AccessTokenPayload): Promise<string> {
-    return this.jwtService.signAsync(payload, {
-      privateKey: this.privateKey,
+  private async mappingPermissions(data: Array<any>) {
+    let result = [...data];
+    result = result.map(async (item) => {
+      const children = await this.manager
+        .getTreeRepository(Menus)
+        .findDescendants(item);
+      console.log(children);
+      return children;
     });
+    return result;
   }
 }
